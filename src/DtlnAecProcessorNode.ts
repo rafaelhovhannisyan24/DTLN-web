@@ -80,3 +80,36 @@ export const createDtlnAecProcessorNode = (ctx: BaseAudioContext) => {
   })
   return node
 }
+
+export const processPCMWithAEC = (micData: Float32Array, speakerData: Float32Array) => {
+  console.log('Entered processPCMWithAEC')
+  if (!model1 || !model2) {
+    throw new Error(
+      'loadModel() should be called before calling createDtlnProcessorNode'
+    )
+  }
+  const blockShift = 128;
+  const shiftCount = 2;
+  const outputData = new Float32Array(micData.length);
+
+  const process2 = createAecProcess(model1, model2);
+
+  for (let i = 0; i < micData.length; i += blockShift * shiftCount) {
+    for (let shift = 0; shift < shiftCount; shift++) {
+      const start = i + shift * blockShift;
+      const end = start + blockShift;
+      
+      if (end > micData.length) break; // Stop if out of bounds
+
+      const micChunk = micData.subarray(start, end);
+      const spkChunk = speakerData.subarray(start, end);
+      const outChunk = outputData.subarray(start, end);
+
+      process2(micChunk, spkChunk, outChunk);
+    }
+  }
+
+  console.log('Exiting processPCMWithAEC')
+  return outputData;
+};
+

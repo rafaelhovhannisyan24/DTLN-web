@@ -10,5 +10,6 @@ export {
 
 export {
   loadAecModel,
-  createDtlnAecProcessorNode
+  createDtlnAecProcessorNode,
+  processPCMWithAEC,
 } from './DtlnAecProcessorNode'
